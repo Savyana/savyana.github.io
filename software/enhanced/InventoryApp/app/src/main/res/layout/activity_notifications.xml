@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="24dp">
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Low-Stock SMS Alerts" android:textSize="26sp" android:textStyle="bold" android:layout_marginBottom="16dp"/>
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Optional: send an SMS to your phone when you add an item with 5 or fewer units or reduce an item's quantity to 5 or fewer. Standard messaging rates may apply. Inventory works without SMS." android:layout_marginBottom="16dp"/>
+<EditText android:id="@+id/editPhone" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Mobile phone number" android:inputType="phone"/>
+<Button android:id="@+id/buttonAllowSms" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Enable SMS Alerts"/>
+<Button android:id="@+id/buttonDenySms" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Disable / Not Now"/>
+</LinearLayout>
