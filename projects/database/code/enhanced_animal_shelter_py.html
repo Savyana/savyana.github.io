@@ -1,0 +1,146 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>animal_shelter.py | Savanna Neace</title><link rel="stylesheet" href="../../../assets/style.css"></head><body><header class="topbar"><div class="wrap top-inner"><a class="logo" href="../../../index.html">SN / Savanna Neace</a><nav class="navlinks"><a href="../../../index.html">Home</a><a href="../../../index.html#projects">Enhancements</a><a href="../../../code-review.html">Code Review</a><a href="../../../self-assessment.html">Self-Assessment</a></nav></div></header><main class="content-page"><p class="eyebrow">Source Code</p><h1>animal_shelter.py</h1><p>enhanced/animal_shelter.py</p><p><a class="pill secondary" href="../enhanced/animal_shelter.py">View original source file ↗</a><a class="pill secondary" href="../index.html">← Project page</a></p><pre class="code-view"><code>&quot;&quot;&quot;MongoDB CRUD helper for the Grazioso Salvare dashboard.
+
+CS 499 database enhancement:
+- validates inputs before database operations
+- supports safer configuration through environment variables
+- adds optional projection, sorting, and result limits for reads
+- uses specific PyMongo exceptions instead of catching every exception
+- adds connection checking and a clean close method
+&quot;&quot;&quot;
+
+import os
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+
+from pymongo import MongoClient
+from pymongo.errors import PyMongoError
+
+
+class AnimalShelter:
+    &quot;&quot;&quot;Provide CRUD operations for the AAC animal shelter collection.&quot;&quot;&quot;
+
+    def __init__(
+        self,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        host: Optional[str] = None,
+        port: Optional[int] = None,
+        database_name: Optional[str] = None,
+        collection_name: Optional[str] = None,
+    ) -&gt; None:
+        self.database_name = database_name or os.getenv(&quot;AAC_DB_NAME&quot;, &quot;AAC&quot;)
+        self.collection_name = collection_name or os.getenv(&quot;AAC_COLLECTION&quot;, &quot;animals&quot;)
+        host = host or os.getenv(&quot;AAC_DB_HOST&quot;, &quot;localhost&quot;)
+        port = int(port or os.getenv(&quot;AAC_DB_PORT&quot;, &quot;27017&quot;))
+
+        username = username or os.getenv(&quot;AAC_DB_USERNAME&quot;)
+        password = password or os.getenv(&quot;AAC_DB_PASSWORD&quot;)
+
+        connection_options = {
+            &quot;host&quot;: host,
+            &quot;port&quot;: port,
+            &quot;serverSelectionTimeoutMS&quot;: 5000,
+        }
+
+        if username and password:
+            connection_options.update(
+                {
+                    &quot;username&quot;: username,
+                    &quot;password&quot;: password,
+                    &quot;authSource&quot;: self.database_name,
+                }
+            )
+
+        self.client = MongoClient(**connection_options)
+        self.database = self.client[self.database_name]
+        self.collection = self.database[self.collection_name]
+
+    @staticmethod
+    def _require_dict(value: Any, name: str, allow_empty: bool = True) -&gt; Dict[str, Any]:
+        &quot;&quot;&quot;Validate that a CRUD argument is a dictionary.&quot;&quot;&quot;
+        if not isinstance(value, dict):
+            raise ValueError(f&quot;{name} must be a dictionary.&quot;)
+        if not allow_empty and not value:
+            raise ValueError(f&quot;{name} cannot be empty.&quot;)
+        return value
+
+    def ping(self) -&gt; bool:
+        &quot;&quot;&quot;Return True when MongoDB can be reached.&quot;&quot;&quot;
+        try:
+            self.client.admin.command(&quot;ping&quot;)
+            return True
+        except PyMongoError:
+            return False
+
+    def create(self, data: Dict[str, Any]) -&gt; bool:
+        &quot;&quot;&quot;Insert one animal record and return whether the insert succeeded.&quot;&quot;&quot;
+        data = self._require_dict(data, &quot;data&quot;, allow_empty=False)
+        try:
+            result = self.collection.insert_one(data.copy())
+            return result.inserted_id is not None
+        except PyMongoError as exc:
+            print(f&quot;Database error while inserting document: {exc}&quot;)
+            return False
+
+    def read(
+        self,
+        query: Optional[Dict[str, Any]] = None,
+        projection: Optional[Dict[str, int]] = None,
+        limit: int = 0,
+        sort: Optional[Sequence[Tuple[str, int]]] = None,
+    ) -&gt; List[Dict[str, Any]]:
+        &quot;&quot;&quot;Return records matching a query with optional projection, sort, and limit.&quot;&quot;&quot;
+        query = {} if query is None else self._require_dict(query, &quot;query&quot;)
+
+        if projection is not None:
+            projection = self._require_dict(projection, &quot;projection&quot;)
+
+        if not isinstance(limit, int) or limit &lt; 0:
+            raise ValueError(&quot;limit must be a non-negative integer.&quot;)
+
+        try:
+            cursor = self.collection.find(query, projection)
+            if sort:
+                cursor = cursor.sort(list(sort))
+            if limit:
+                cursor = cursor.limit(limit)
+            return list(cursor)
+        except PyMongoError as exc:
+            print(f&quot;Database error while reading documents: {exc}&quot;)
+            return []
+
+    def update(self, query: Dict[str, Any], new_data: Dict[str, Any]) -&gt; int:
+        &quot;&quot;&quot;Update matching records and return the number of modified documents.&quot;&quot;&quot;
+        query = self._require_dict(query, &quot;query&quot;, allow_empty=False)
+        new_data = self._require_dict(new_data, &quot;new_data&quot;, allow_empty=False)
+
+        try:
+            result = self.collection.update_many(query, {&quot;$set&quot;: new_data})
+            return result.modified_count
+        except PyMongoError as exc:
+            print(f&quot;Database error while updating documents: {exc}&quot;)
+            return 0
+
+    def delete(self, query: Dict[str, Any]) -&gt; int:
+        &quot;&quot;&quot;Delete matching records and return the number of deleted documents.&quot;&quot;&quot;
+        query = self._require_dict(query, &quot;query&quot;, allow_empty=False)
+
+        try:
+            result = self.collection.delete_many(query)
+            return result.deleted_count
+        except PyMongoError as exc:
+            print(f&quot;Database error while deleting documents: {exc}&quot;)
+            return 0
+
+    def count(self, query: Optional[Dict[str, Any]] = None) -&gt; int:
+        &quot;&quot;&quot;Return the number of records matching a query.&quot;&quot;&quot;
+        query = {} if query is None else self._require_dict(query, &quot;query&quot;)
+        try:
+            return self.collection.count_documents(query)
+        except PyMongoError as exc:
+            print(f&quot;Database error while counting documents: {exc}&quot;)
+            return 0
+
+    def close(self) -&gt; None:
+        &quot;&quot;&quot;Close the MongoDB client connection.&quot;&quot;&quot;
+        self.client.close()
+</code></pre></main><footer><div class="wrap">CS-499 · Savanna Neace</div></footer></body></html>
