@@ -1,0 +1,47 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>README_Grazioso_Salvare.md | Savanna Neace</title><link rel="stylesheet" href="../../../assets/style.css"></head><body><header class="topbar"><div class="wrap top-inner"><a class="logo" href="../../../index.html">SN / Savanna Neace</a><nav class="navlinks"><a href="../../../index.html">Home</a><a href="../../../index.html#projects">Enhancements</a><a href="../../../code-review.html">Code Review</a><a href="../../../self-assessment.html">Self-Assessment</a></nav></div></header><main class="content-page"><p class="eyebrow">Source Code</p><h1>README_Grazioso_Salvare.md</h1><p>enhanced/README_Grazioso_Salvare.md</p><p><a class="pill secondary" href="../enhanced/README_Grazioso_Salvare.md">View original source file ↗</a><a class="pill secondary" href="../index.html">← Project page</a></p><pre class="code-view"><code># Grazioso Salvare Dashboard - CS 499 Database Enhancement
+
+## Project Overview
+This project is an enhanced version of the Animal Shelter Dashboard originally created in CS 340. It connects a Python dashboard to the AAC MongoDB database and lets a user filter shelter animals for different rescue needs. The dashboard includes the Grazioso Salvare logo, an interactive table, a breed pie chart, and a map for the selected animal.
+
+## What I Enhanced
+For the CS 499 database milestone, I focused on changes that make the database side of the project safer and easier to maintain instead of changing the purpose of the original dashboard.
+
+- Removed the hard-coded MongoDB username and password from the notebook. Credentials can now be supplied through `AAC_DB_USERNAME` and `AAC_DB_PASSWORD` environment variables.
+- Added input validation to the CRUD methods so invalid values are caught before a database operation is attempted.
+- Replaced broad exception handling with PyMongo-specific database error handling.
+- Added optional projection, sorting, and result limits to the read method.
+- Added a `count()` method, a database connection `ping()` check, and a `close()` method.
+- Moved rescue queries into one dictionary so the query logic is easier to read and maintain.
+- Added safer handling for empty query results and invalid map coordinates.
+- Cleaned up the chart logic so breed counts are calculated explicitly before building the pie chart.
+
+## Configuration
+MongoDB defaults to `localhost:27017`, database `AAC`, and collection `animals`.
+
+If authentication is required, set these environment variables before running the notebook:
+
+- `AAC_DB_USERNAME`
+- `AAC_DB_PASSWORD`
+
+Optional settings are also supported:
+
+- `AAC_DB_HOST`
+- `AAC_DB_PORT`
+- `AAC_DB_NAME`
+- `AAC_COLLECTION`
+
+## Running the Project
+1. Make sure MongoDB is running.
+2. Import the Austin Animal Center data into the `AAC` database and `animals` collection.
+3. Place the notebook, `animal_shelter.py`, and logo in the same folder.
+4. Set the MongoDB environment variables if your database requires authentication.
+5. Open `ProjectTwoDashboard_completed.ipynb` in Jupyter Notebook.
+6. Run the notebook cell.
+7. Test each rescue filter and Reset.
+
+## Files
+- `ProjectTwoDashboard_completed.ipynb` - dashboard interface and callbacks
+- `animal_shelter.py` - enhanced MongoDB CRUD class
+- `Grazioso Salvare Logo.png` - dashboard logo
+- `README_Grazioso_Salvare.md` - project notes and setup instructions
+</code></pre></main><footer><div class="wrap">CS-499 · Savanna Neace</div></footer></body></html>
