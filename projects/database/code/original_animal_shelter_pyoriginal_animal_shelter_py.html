@@ -1,0 +1,62 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>animal_shelter.py | Savanna Neace</title><link rel="stylesheet" href="../../../assets/style.css"></head><body><header class="topbar"><div class="wrap top-inner"><a class="logo" href="../../../index.html">SN / Savanna Neace</a><nav class="navlinks"><a href="../../../index.html">Home</a><a href="../../../index.html#projects">Enhancements</a><a href="../../../code-review.html">Code Review</a><a href="../../../self-assessment.html">Self-Assessment</a></nav></div></header><main class="content-page"><p class="eyebrow">Source Code</p><h1>animal_shelter.py</h1><p>original/animal_shelter.py</p><p><a class="pill secondary" href="../original/animal_shelter.py">View original source file ↗</a><a class="pill secondary" href="../index.html">← Project page</a></p><pre class="code-view"><code>from pymongo import MongoClient
+
+
+class AnimalShelter(object):
+
+    def __init__(self, username=None, password=None):
+        DB = &quot;AAC&quot;
+        COL = &quot;animals&quot;
+
+        if username and password:
+            self.client = MongoClient(
+                host=&quot;localhost&quot;, port=27017, username=username, password=password, authSource=DB
+            )
+        else:
+            self.client = MongoClient(&quot;mongodb://localhost:27017&quot;)
+
+        self.database = self.client[DB]
+        self.collection = self.database[COL]
+
+    def create(self, data):
+        if data is not None:
+            try:
+                result = self.collection.insert_one(data)
+                return True if result.inserted_id else False
+            except Exception as e:
+                print(&quot;Error inserting document:&quot;, e)
+                return False
+        else:
+            raise Exception(&quot;Nothing to save, because data parameter is empty&quot;)
+
+    def read(self, query):
+        if query is not None:
+            try:
+                data = self.collection.find(query)
+                return list(data)
+            except Exception as e:
+                print(&quot;Error reading documents:&quot;, e)
+                return []
+        else:
+            raise Exception(&quot;Read query cannot be empty&quot;)
+
+    def update(self, query, newData):
+        if query is not None and newData is not None:
+            try:
+                result = self.collection.update_many(query, {&quot;$set&quot;: newData})
+                return result.modified_count
+            except Exception as e:
+                print(&quot;Error updating document:&quot;, e)
+                return 0
+        else:
+            raise Exception(&quot;Update parameters cannot be empty&quot;)
+
+    def delete(self, query):
+        if query is not None:
+            try:
+                result = self.collection.delete_many(query)
+                return result.deleted_count
+            except Exception as e:
+                print(&quot;Error deleting document:&quot;, e)
+                return 0
+        else:
+            raise Exception(&quot;Delete query cannot be empty&quot;)</code></pre></main><footer><div class="wrap">CS-499 · Savanna Neace</div></footer></body></html>
