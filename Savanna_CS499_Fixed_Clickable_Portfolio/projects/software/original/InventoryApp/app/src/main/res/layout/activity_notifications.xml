@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
+    android:background="#F5F7FA">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SMS Notifications"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#1F3A5F"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Inventory Manager can send you SMS alerts when an item's inventory is running low."
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Would you like to allow SMS notifications?"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#1F3A5F"
+        android:gravity="center"
+        android:layout_marginBottom="28dp" />
+
+    <Button
+        android:id="@+id/buttonAllowSms"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Allow SMS Notifications"
+        android:textSize="16sp"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/buttonDenySms"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Not Now"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="You can continue using the app even if SMS notifications are not enabled."
+        android:textSize="13sp"
+        android:textColor="#777777"
+        android:gravity="center"
+        android:layout_marginTop="24dp" />
+
+</LinearLayout>
